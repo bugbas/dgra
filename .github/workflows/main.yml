@@ -1,0 +1,26 @@
+name: Reaction Comment Prompt
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [edited]
+
+jobs:
+  reaction_checker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Reaction
+        id: check_reaction
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const reaction = context.payload.reaction.content;
+            if (reaction === 'thumbsdown' || reaction === 'pencil') {
+              github.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: `@${context.payload.sender.login}, you selected ${reaction}. Could you please provide more details in a comment?`
+              });
+            }
